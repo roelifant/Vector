@@ -298,7 +298,34 @@ export class Vector {
         console.table(object);
     }
 
-    copy() {
+    public copy() {
         return Vector.fromVector(this);
+    }
+
+    public matches(vector: Vector, accuracy: number = 3): boolean {
+        if(this.components.length !== vector.components.length) {
+            return false;
+        }
+
+        for (let i = 0; i < this.components.length; i++) {
+            const thisComp = this.components[i];
+            const otherComp = vector.components[i];
+
+            if(Vector.utils.roundToNDecimals(thisComp, accuracy) !== Vector.utils.roundToNDecimals(otherComp, accuracy)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    public projectToLine(lineStart: Vector, lineEnd: Vector): Vector
+    {
+        const AB = lineEnd.subtract(lineStart);
+        const AC = this.subtract(lineStart);
+
+        const AD = AB.scale(AC.dot(AB)).divide(AB.dot(AB));
+
+        return lineStart.add(AD);
     }
 }
