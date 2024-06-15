@@ -331,6 +331,13 @@ export class Vector {
         return true;
     }
 
+    public matchesDirection(vector: Vector): boolean {
+        const normalizedSelf = this.normalizeOrRemain();
+        const normalizedVector = vector.normalizeOrRemain();
+
+        return normalizedSelf.matches(normalizedVector);
+    }
+
     public projectToLine(lineStart: Vector, lineEnd: Vector): Vector
     {
         const AB = lineEnd.subtract(lineStart);
