@@ -88,7 +88,7 @@ export class Vector {
     }
 
     /**
-     * Creates a vector from the given parameter. Possible inputs are an angle (number), a point (IPoint) or a Vector
+     * Creates a vector from the given parameter. Possible inputs are an angle (number), a point (IPoint) or a Vector class instance
      * 
      * @returns vector
      */
