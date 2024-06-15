@@ -279,6 +279,14 @@ export class Vector {
         return this.flipComponent(3);
     }
 
+    public opposite(): Vector {
+        let vector = this.copy();
+        for (let i = 1; i < this.components.length + 1; i++) {
+            vector = vector.flipComponent(i);
+        }
+        return vector.copy();
+    }
+
     /**
      * log all components + length
      */
