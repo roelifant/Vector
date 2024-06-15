@@ -134,18 +134,6 @@ export class Vector {
         return res;
     }
 
-    public angle(): number {
-        if (this.components.length > 2) {
-            throw Error('This method only works for two-dimensional vectors!');
-        }
-        const origin = new Vector(0, -1)
-        const radian = Math.acos(this.dot(origin) / (this.length * origin.length))
-        if (this.y * origin.x > this.x * origin.y) {
-            return radian * (180 / Math.PI);
-        }
-        return ((Math.PI * 2) - radian) * (180 / Math.PI);
-    }
-
     public angleTo(vector: Vector): number {
         if(this.components.length > 2 || vector.components.length > 2) {
             throw Error('This method only works for two-dimensional vectors');
@@ -232,6 +220,18 @@ export class Vector {
         if(this.components.length < 2) throw new Error('Not enough components for point');
         if(this.components.length > 2) return {x: this.x, y: this.y, z: this.z};
         return {x: this.x, y: this.y};
+    }
+
+    public toAngle(): number {
+        if (this.components.length > 2) {
+            throw Error('This method only works for two-dimensional vectors!');
+        }
+        const origin = new Vector(0, -1)
+        const radian = Math.acos(this.dot(origin) / (this.length * origin.length))
+        if (this.y * origin.x > this.x * origin.y) {
+            return radian * (180 / Math.PI);
+        }
+        return ((Math.PI * 2) - radian) * (180 / Math.PI);
     }
 
     /**
