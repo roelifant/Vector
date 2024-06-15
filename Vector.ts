@@ -195,8 +195,12 @@ export class Vector {
     /**
      * Will get the pependicular vector for a 2D vector
      */
-    public perpendicular2D() {
-        return new Vector(-this.y, this.x);
+    public perpendicular2D(clockwise: boolean = true) {
+        if(clockwise) {
+            return new Vector(-this.y, this.x);
+        }
+
+        return this.perpendicular2D().perpendicular2D().perpendicular2D();
     }
 
     public cross(vector: Vector) {
