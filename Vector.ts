@@ -338,6 +338,13 @@ export class Vector {
         return normalizedSelf.matches(normalizedVector);
     }
 
+    public isParallelTo(vector: Vector) {
+        if(this.length === 0 || vector.length === 0) {
+            throw new Error('Both vectors need to be lines. Length cannot be zero.')
+        }
+        return this.matchesDirection(vector) || this.matchesDirection(vector.opposite());
+    }
+
     public projectToLine(lineStart: Vector, lineEnd: Vector): Vector
     {
         const AB = lineEnd.subtract(lineStart);
