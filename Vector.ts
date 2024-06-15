@@ -3,36 +3,63 @@ import { VectorUtils } from "./VectorUtils";
 
 export class Vector {
 
+    /**
+     * The components (= the numbers) this vector is made of
+     */
     public components: Array<number>;
 
+    /**
+     * A collection of utility methods that are useful for vector calculations
+     */
     static utils: VectorUtils = new VectorUtils();
 
+    /**
+     * The first component of the vector
+     */
     public get x(): number {
         return this.components[0];
     }
 
+    /**
+     * The first component of the vector
+     */
     public set x(x: number) {
         this.components[0] = x;
     }
 
+    /**
+     * The second component of the vector
+     */
     public get y(): number {
-        if(this.components.length < 2) throw new Error('vector has no y component');
+        if (this.components.length < 2) throw new Error('vector has no y component');
         return this.components[1];
     }
 
+    /**
+     * The second component of the vector
+     */
     public set y(y: number) {
-        if(this.components.length < 2) throw new Error('vector has no z component');
+        if (this.components.length < 2) throw new Error('vector has no z component');
         this.components[1] = y;
     }
 
+    /**
+     * the third component of the vector
+     */
     public get z(): number {
         return this.components[2];
     }
 
+    /**
+     * the third component of the vector
+     */
     public set z(z: number) {
         this.components[2] = z;
     }
 
+    /**
+     * The length or magnitude of the vector
+     */
     public get length(): number {
         let res = 0;
         this.components.forEach(component => {
@@ -41,22 +68,41 @@ export class Vector {
         return Math.sqrt(res);
     }
 
+    /**
+     * Alias for length
+     */
+    public get magnitude(): number {
+        return this.length;
+    }
+
+    /**
+     * 2 = 2D vector, 3 = 3D vector, and so on
+     */
+    public get dimensions(): number {
+        return this.components.length;
+    }
+
     constructor(...components: Array<number>) {
-        if(components.length === 0) throw new Error('vector was given no components');
+        if (components.length === 0) throw new Error('vector was given no components');
         this.components = components
     }
 
-    static from(param: number|IPoint|Vector) {
-        if(param instanceof Vector) {
+    /**
+     * Creates a vector from the given parameter. Possible inputs are an angle (number), a point (IPoint) or a Vector
+     * 
+     * @returns vector
+     */
+    static from(param: number | IPoint | Vector): Vector {
+        if (param instanceof Vector) {
             return Vector.fromVector(param);
         }
 
-        if(typeof param === 'number') {
+        if (typeof param === 'number') {
             return Vector.fromAngle(param);
         }
 
-        if(typeof param === 'object') {
-            if(param.hasOwnProperty('x') && param.hasOwnProperty('y')) {
+        if (typeof param === 'object') {
+            if (param.hasOwnProperty('x') && param.hasOwnProperty('y')) {
                 return Vector.fromPoint(param);
             }
         }
@@ -64,53 +110,116 @@ export class Vector {
         throw new Error('Could not create Vector');
     }
 
-    static fromPoint(point: IPoint) {
-        if(!!point.z) return new Vector(point.x, point.y, point.z);
+
+    /**
+     * 
+     * Will create a vector from a given point (IPoint)
+     * 
+     * IPoint has x and y number properties, and optionally a z number property
+     * 
+     * @param point 
+     * @returns vector
+     */
+    static fromPoint(point: IPoint): Vector {
+        if (!!point.z) return new Vector(point.x, point.y, point.z);
         return new Vector(point.x, point.y);
     }
 
     /**
-     * angle in degrees
+     * Will create a 2D Vector from a given angle
+     * 
+     * Angle must be in degrees
      *
      * @param angle
+     * @returns vector
      */
-    static fromAngle(angle: number) {
+    static fromAngle(angle: number): Vector {
         let radians = this.utils.degreesToRadians(angle);
         return new Vector(Math.cos(radians), Math.sin(radians));
     }
 
-    static fromVector(vector: Vector) {
-        return new Vector(...vector.components);
+    /**
+     * Wil return a new copy of the vector
+     * @param vector 
+     * @returns vector
+     */
+    static fromVector(vector: Vector): Vector {
+        return vector.copy()
     }
 
-    public add(vector: Vector) {
+    /**
+     * Add another vector to this vector
+     * 
+     * A new vector is created where each component is the sum of the component from this vector and the component from the added vector.
+     * 
+     * @param vector 
+     * @returns 
+     */
+    public add(vector: Vector): Vector {
         const { components } = vector;
         return new Vector(
             ...components.map((component, index) => this.components[index] + component)
         )
     }
 
-    public subtract(vector: Vector) {
+    /**
+     * Subtract another vector from this vector
+     * 
+     * A new vector is created where each component is the component from the subtracted vector, subtracted from the component of this vector.
+     * 
+     * @param vector 
+     * @returns Vector
+     */
+    public subtract(vector: Vector): Vector {
         const { components } = vector;
         return new Vector(
             ...components.map((component, index) => this.components[index] - component)
         )
     }
 
-    public scale(scalar: number) {
+    /**
+     * Scale the vector by a number
+     * 
+     * A new vector is created where each component is multiplied by the scalar
+     * 
+     * @param scalar 
+     * @returns vector
+     */
+    public scale(scalar: number): Vector {
         return new Vector(...this.components.map(component => component * scalar));
     }
 
-    public divide(scalar: number) {
+    /**
+     * Divide the vector by a number
+     * 
+     * A new vector is created where each component is divided by the scalar
+     * 
+     * @param scalar 
+     * @returns vector
+     */
+    public divide(scalar: number): Vector {
         return new Vector(...this.components.map(component => component / scalar));
     }
 
-    public normalize() {
-        if(this.length === 0) throw Error('cannot be normalised because length is 0');
+    /**
+     * Normalize the vector by altering its components so the vector length = 1
+     * 
+     * @throws Error - if the vector has a length of 0
+     * @returns vector
+     */
+    public normalize(): Vector {
+        if (this.length === 0) throw Error('cannot be normalised because length is 0');
         return this.divide(this.length);
     }
 
-    public normalizeOrRemain() {
+    /**
+     * Normalize the vector by altering its components so the vector length = 1
+     * 
+     * If the vector has a length of 0, the vector will not be normalized
+     * 
+     * @returns vector
+     */
+    public normalizeOrRemain(): Vector {
         try {
             return this.normalize()
         } catch (e) {
@@ -119,9 +228,10 @@ export class Vector {
     }
 
     /**
-     * Dot product. Turns two vectors into a single number.
+     * Create the dot product for two vectors. Turns two vectors into a single number.
      *
      * @param vector
+     * @returns number
      */
     public dot(vector: Vector): number {
         if (this.components.length !== vector.components.length) {
@@ -134,8 +244,16 @@ export class Vector {
         return res;
     }
 
+    /**
+     * Will turn a 2D vector into an angle (degrees)
+     * 
+     * This only works with 2D vectors
+     * 
+     * @param vector 
+     * @returns angle
+     */
     public angleTo(vector: Vector): number {
-        if(this.components.length > 2 || vector.components.length > 2) {
+        if (this.components.length > 2 || vector.components.length > 2) {
             throw Error('This method only works for two-dimensional vectors');
         }
 
@@ -144,55 +262,94 @@ export class Vector {
         return theta * (180 / Math.PI);
     }
 
+    /**
+     * Calculate the distance between 2 2D vectors
+     * 
+     * @param vector 
+     * @returns distance
+     */
     public distance(vector: Vector): number {
-        if(this.components.length > 2 || vector.components.length > 2) {
+        if (this.components.length > 2 || vector.components.length > 2) {
             throw Error('This method only works for two-dimensional vectors!');
         }
         return Math.sqrt(Math.pow((this.x - vector.x), 2) + Math.pow((this.y - vector.y), 2));
     }
 
+    /**
+     * Rotate a 2D vector
+     * 
+     * @param radians 
+     * @returns radians
+     */
     public rotate(radians: number) {
         const cos = Math.cos(radians);
         const sin = Math.sin(radians);
 
         return new Vector(
-            (cos*this.x) - (sin*this.y),
-            (sin*this.x) + (cos*this.y),
+            (cos * this.x) - (sin * this.y),
+            (sin * this.x) + (cos * this.y),
         );
     }
-    
 
+
+    /**
+     * Flip a component from negative to positive, or from positive to negative
+     * 
+     * @param component 
+     * @returns vector
+     */
     public flipComponent(component: number): Vector {
-        if(component < 1 || component > this.components.length) throw Error('Vector does not have a '+component+'th component');
-        
+        if (component < 1 || component > this.components.length) throw Error('Vector does not have a ' + component + 'th component');
+
         const vector = this.copy()
         vector.components[component - 1] = -vector.components[component - 1];
-        
+
         return vector;
     }
 
-    public rotateAroundAnchor(radians: number, anchor: Vector) {
+    /**
+     * Rotate the vector around an anchor point
+     * 
+     * @param radians 
+     * @param anchor 
+     * @returns vector
+     */
+    public rotateAroundAnchor(radians: number, anchor: Vector | IPoint): Vector {
+        if (!(anchor instanceof Vector)) {
+            anchor = Vector.from(anchor);
+        }
+
         // first get direction from point to anchor
-        const direction = this.subtract(anchor);
+        const direction = this.subtract(<Vector>anchor);
 
         // then rotate that direction the desired angle (radian)
         const rotatedDirection = direction.rotate(radians);
-        return rotatedDirection.add(anchor);
+        return rotatedDirection.add(<Vector>anchor);
     }
 
     /**
      * Will get the pependicular vector for a 2D vector
+     * 
+     * @returns vector
      */
-    public perpendicular2D(clockwise: boolean = true) {
-        if(clockwise) {
+    public perpendicular2D(clockwise: boolean = true): Vector {
+        if (clockwise) {
             return new Vector(-this.y, this.x);
         }
 
         return this.perpendicular2D().perpendicular2D().perpendicular2D();
     }
 
-    public cross(vector: Vector) {
-        if(!(this.components.length === 3) || !(vector.components.length === 3)) {
+    /**
+     * Creates the cross product (or vector product) of 2 3D vectors
+     * 
+     * I have to level with you. I have no clue what this even is. But wikipedia does! (https://en.wikipedia.org/wiki/Cross_product) and as far as I can tell it works.
+     * 
+     * @param vector 
+     * @returns vector
+     */
+    public cross(vector: Vector): Vector {
+        if (!(this.components.length === 3) || !(vector.components.length === 3)) {
             throw Error('Cross product can only be calculated for 3D vectors!')
         }
 
@@ -203,6 +360,12 @@ export class Vector {
         )
     }
 
+    /**
+     * Iterate over all components and modify each one with a callback function
+     * 
+     * @param callback 
+     * @returns vector
+     */
     public map(callback: CallableFunction): Vector {
         const components = [...this.components];
         const result: Array<number> = [];
@@ -211,17 +374,21 @@ export class Vector {
     }
 
     /**
-     * 
-     * output the vector as a point (x, y, z);
+     * Output the vector as a point (x, y, z);
      * 
      * @returns IPoint
      */
     public toPoint(): IPoint {
-        if(this.components.length < 2) throw new Error('Not enough components for point');
-        if(this.components.length > 2) return {x: this.x, y: this.y, z: this.z};
-        return {x: this.x, y: this.y};
+        if (this.components.length < 2) throw new Error('Not enough components for point');
+        if (this.components.length > 2) return { x: this.x, y: this.y, z: this.z };
+        return { x: this.x, y: this.y };
     }
 
+    /**
+     * Output a 2D vector as an angle (degrees)
+     * 
+     * @returns degrees
+     */
     public toAngle(): number {
         if (this.components.length > 2) {
             throw Error('This method only works for two-dimensional vectors!');
@@ -238,6 +405,8 @@ export class Vector {
      * 
      * Is the vector within a certain distance of another vector?
      * 
+     * Only works for 2D vectors
+     * 
      * @param vector 
      * @param distance 
      * @returns boolean
@@ -249,37 +418,70 @@ export class Vector {
     /**
      * Get the vector for a point vector that is mirrored over another point vector
      * 
+     * Only works for 2D vectors
+     * 
      * @param reflectionPoint 
      * @returns vector
      */
     public reflectOverPoint(reflectionPoint: Vector): Vector {
         const distance = this.distance(reflectionPoint);
         const dir = reflectionPoint.subtract(this).normalizeOrRemain();
-        return this.add(dir.scale(distance*2));
+        return this.add(dir.scale(distance * 2));
     }
 
     /**
-     * calculate the mid point between 2 points
+     * Calculate the mid point between 2 points
      *
      * @param positionVector
+     * @returns vector
      */
-    public middle(positionVector: Vector) {
+    public middle(positionVector: Vector): Vector {
         return this.add(positionVector).divide(2);
     }
 
-    public flipX(): Vector{
+    /**
+     * Alias for middle() method
+     * 
+     * @param positionVector 
+     * @returns vector
+     */
+    public midPoint(positionVector: Vector): Vector {
+        return this.middle(positionVector);
+    }
+
+    /**
+     * Flip the first component from negative to positive, or from positive to negative
+     * 
+     * @returns vector
+     */
+    public flipX(): Vector {
         return this.flipComponent(1);
     }
 
-    public flipY(): Vector{
+    /**
+     * Flip the second component from negative to positive, or from positive to negative
+     * 
+     * @returns vector
+     */
+    public flipY(): Vector {
         return this.flipComponent(2);
     }
 
-    public flipZ(): Vector{
+    /**
+     * Flip the first component from negative to positive, or from positive to negative
+     * 
+     * @returns vector
+     */
+    public flipZ(): Vector {
         return this.flipComponent(3);
     }
 
-    public opposite(): Vector {
+    /**
+     * Flip all components from negative to positive, or from positive to negative
+     * 
+     * @returns vector
+     */
+    public flip(): Vector {
         let vector = this.copy();
         for (let i = 1; i < this.components.length + 1; i++) {
             vector = vector.flipComponent(i);
@@ -288,14 +490,25 @@ export class Vector {
     }
 
     /**
-     * log all components + length
+     * Point a vector in the opposite direction
+     * 
+     * Also an alias for flip()
+     * 
+     * @returns vector
+     */
+    public opposite(): Vector {
+        return this.flip();
+    }
+
+    /**
+     * Log all components + length
      */
     public log() {
         const components: any = {};
-        if(this.components.length <= 3) {
+        if (this.components.length <= 3) {
             components['x'] = this.x;
-            if(this.components.length > 1) components['y'] = this.y;
-            if(this.components.length > 2) components['z'] = this.z;
+            if (this.components.length > 1) components['y'] = this.y;
+            if (this.components.length > 2) components['z'] = this.z;
         } else {
             this.components.forEach((comp, index) => {
                 components[index] = comp;
@@ -303,19 +516,31 @@ export class Vector {
         }
 
         const object = {
-            components: this.components.length,
             length: this.length,
+            dimensions: this.dimensions,
             ...components,
         };
         console.table(object);
     }
 
+    /**
+     * Make a new copy of this vector
+     * 
+     * @returns vector
+     */
     public copy() {
         return Vector.fromVector(this);
     }
 
+    /**
+     * Do the components of this vector match the components of another vector?
+     * 
+     * @param vector 
+     * @param accuracy 
+     * @returns boolean
+     */
     public matches(vector: Vector, accuracy: number = 3): boolean {
-        if(this.components.length !== vector.components.length) {
+        if (this.components.length !== vector.components.length) {
             return false;
         }
 
@@ -323,7 +548,7 @@ export class Vector {
             const thisComp = this.components[i];
             const otherComp = vector.components[i];
 
-            if(Vector.utils.roundToNDecimals(thisComp, accuracy) !== Vector.utils.roundToNDecimals(otherComp, accuracy)) {
+            if (Vector.utils.roundToNDecimals(thisComp, accuracy) !== Vector.utils.roundToNDecimals(otherComp, accuracy)) {
                 return false;
             }
         }
@@ -331,22 +556,42 @@ export class Vector {
         return true;
     }
 
-    public matchesDirection(vector: Vector): boolean {
+    /**
+     * Does the direction of this vector match the direction of another vector
+     * 
+     * @param vector 
+     * @param accuracy 
+     * @returns boolean
+     */
+    public matchesDirection(vector: Vector, accuracy: number = 3): boolean {
         const normalizedSelf = this.normalizeOrRemain();
         const normalizedVector = vector.normalizeOrRemain();
 
-        return normalizedSelf.matches(normalizedVector);
+        return normalizedSelf.matches(normalizedVector, accuracy);
     }
 
-    public isParallelTo(vector: Vector) {
-        if(this.length === 0 || vector.length === 0) {
+    /**
+     * Does the direction of this vector match the direction of another vector, OR the opposite direction
+     * 
+     * @param vector 
+     * @param accuracy 
+     * @returns boolean
+     */
+    public isParallelTo(vector: Vector, accuracy: number = 3): boolean {
+        if (this.length === 0 || vector.length === 0) {
             throw new Error('Both vectors need to be lines. Length cannot be zero.')
         }
-        return this.matchesDirection(vector) || this.matchesDirection(vector.opposite());
+        return this.matchesDirection(vector, accuracy) || this.matchesDirection(vector.opposite(), accuracy);
     }
 
-    public projectToLine(lineStart: Vector, lineEnd: Vector): Vector
-    {
+    /**
+     * Project this position vector onto a line drawn between the lineStart and lineEnd vectors
+     * 
+     * @param lineStart 
+     * @param lineEnd 
+     * @returns vector
+     */
+    public projectToLineSegment(lineStart: Vector, lineEnd: Vector): Vector {
         const AB = lineEnd.subtract(lineStart);
         const AC = this.subtract(lineStart);
 

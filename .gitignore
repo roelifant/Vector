@@ -1,0 +1,3 @@
+# file used in local developmlent to test the functionality of the vectors
+# (I don't like having to remove it before each commit. I prefer the .gitignore in the repo)
+test.ts
