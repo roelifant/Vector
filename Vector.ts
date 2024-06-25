@@ -599,4 +599,93 @@ export class Vector {
 
         return lineStart.add(AD);
     }
+
+    /**
+     * Modify the vector so its length equals the given number
+     * 
+     * @param length
+     * @returns vector
+     */
+    public setLength(length: number): Vector {
+        if(this.length === 0){
+            throw new Error('Cannot set length on a vector that has no direction.');
+        }
+
+        return this.normalize().scale(length);
+    }
+
+    /**
+     * Alias for setLength()
+     * 
+     * @param length 
+     * @returns vector
+     */
+    public setMagnitude(length: number): Vector {
+        return this.setLength(length);
+    }
+
+    /**
+     * Modify the vector so its length is equal to the original length + the given addition number
+     * 
+     * @param addition 
+     * @returns vector
+     */
+    public addLength(addition: number): Vector {
+        if(addition < 0) {
+            return this.subtractLength(-addition);
+        }
+
+        if(this.length === 0){
+            throw new Error('Cannot add length to a vector with a starting length of zero.');
+        }
+
+        const newLength = this.length + addition;
+
+        return this.setLength(newLength);
+    }
+
+    /**
+     * Alias for addLength()
+     * 
+     * @param addition 
+     * @returns vector
+     */
+    public addMagnitude(addition: number): Vector {
+        return this.addLength(addition);
+    }
+
+    /**
+     * Modify the vector so its length is equal to the original length - the given subtraction number
+     * 
+     * @param subtraction 
+     * @returns 
+     */
+    public subtractLength(subtraction: number): Vector {
+        if(subtraction < 0) {
+            return this.addLength(-subtraction);
+        }
+
+        if(this.length === 0){
+            throw new Error('Cannot subtract length from a vector with a starting length of zero.');
+        }
+
+        const originalLength = this.length;
+        const newLength = originalLength - subtraction;
+
+        if(newLength < 0) {
+            return new Vector(0, 0);
+        }
+
+        return this.setLength(newLength);
+    }
+
+    /**
+     * Alias for subtractLength()
+     * 
+     * @param subtraction 
+     * @returns vector
+     */
+    public subtractMagnitude(subtraction: number): Vector {
+        return this.subtractLength(subtraction);
+    }
 }
