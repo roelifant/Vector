@@ -617,11 +617,11 @@ export class Vector {
     /**
      * Alias for setLength()
      * 
-     * @param length 
+     * @param magnitude 
      * @returns vector
      */
-    public setMagnitude(length: number): Vector {
-        return this.setLength(length);
+    public setMagnitude(magnitude: number): Vector {
+        return this.setLength(magnitude);
     }
 
     /**
