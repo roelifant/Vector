@@ -1,5 +1,6 @@
 import { IPoint } from "./VectorInterfaces";
 import { VectorUtils } from "./VectorUtils";
+import { ConstructorVectorError, DimensionsVectorError, IncompatibilityVectorError, MissingComponentVectorError, NoLengthVectorError } from './VectorErrors';
 
 export class Vector {
 
@@ -31,7 +32,7 @@ export class Vector {
      * The second component of the vector
      */
     public get y(): number {
-        if (this.components.length < 2) throw new Error('vector has no y component');
+        if (this.components.length < 2) throw new MissingComponentVectorError('Vector has no y component');
         return this.components[1];
     }
 
@@ -39,7 +40,7 @@ export class Vector {
      * The second component of the vector
      */
     public set y(y: number) {
-        if (this.components.length < 2) throw new Error('vector has no z component');
+        if (this.components.length < 2) throw new MissingComponentVectorError('Vector has no y component');
         this.components[1] = y;
     }
 
@@ -47,6 +48,7 @@ export class Vector {
      * the third component of the vector
      */
     public get z(): number {
+        if (this.components.length < 3) throw new MissingComponentVectorError('Vector has no z component');
         return this.components[2];
     }
 
@@ -54,6 +56,7 @@ export class Vector {
      * the third component of the vector
      */
     public set z(z: number) {
+        if (this.components.length < 3) throw new MissingComponentVectorError('Vector has no z component');
         this.components[2] = z;
     }
 
@@ -83,7 +86,7 @@ export class Vector {
     }
 
     constructor(...components: Array<number>) {
-        if (components.length === 0) throw new Error('vector was given no components');
+        if (components.length === 0) throw new ConstructorVectorError('Vector was given no components');
         this.components = components
     }
 
@@ -107,7 +110,7 @@ export class Vector {
             }
         }
 
-        throw new Error('Could not create Vector');
+        throw new ConstructorVectorError('Could not create Vector');
     }
 
 
@@ -208,7 +211,7 @@ export class Vector {
      * @returns vector
      */
     public normalize(): Vector {
-        if (this.length === 0) throw Error('cannot be normalised because length is 0');
+        if (this.length === 0) throw new NoLengthVectorError('Cannot be normalised because length is 0');
         return this.divide(this.length);
     }
 
@@ -235,7 +238,7 @@ export class Vector {
      */
     public dot(vector: Vector): number {
         if (this.components.length !== vector.components.length) {
-            throw Error("Vectors must have the same amount of components!");
+            throw new IncompatibilityVectorError("Vectors must have the same amount of components!");
         }
         let res = 0;
         this.components.forEach((component: number, index: number) => {
@@ -254,7 +257,7 @@ export class Vector {
      */
     public angleTo(vector: Vector): number {
         if (this.components.length !== 2 || vector.components.length !== 2) {
-            throw Error('This method only works for two-dimensional vectors');
+            throw new DimensionsVectorError('This method only works for two-dimensional vectors');
         }
 
         const diff = this.subtract(vector);
@@ -270,7 +273,7 @@ export class Vector {
      */
     public distance(vector: Vector): number {
         if (this.components.length !== 2 || vector.components.length !== 2) {
-            throw Error('This method only works for two-dimensional vectors!');
+            throw new DimensionsVectorError('This method only works for two-dimensional vectors!');
         }
         return Math.sqrt(Math.pow((this.x - vector.x), 2) + Math.pow((this.y - vector.y), 2));
     }
@@ -283,7 +286,7 @@ export class Vector {
      */
     public rotate(radians: number) {
         if (this.components.length !== 2) {
-            throw Error('This method only works for two-dimensional vectors');
+            throw new DimensionsVectorError('This method only works for two-dimensional vectors');
         }
 
         const cos = Math.cos(radians);
@@ -338,7 +341,7 @@ export class Vector {
      */
     public perpendicular2D(clockwise: boolean = true): Vector {
         if (this.components.length !== 2) {
-            throw Error('This method only works for two-dimensional vectors');
+            throw new DimensionsVectorError('This method only works for two-dimensional vectors');
         }
 
         if (clockwise) {
@@ -358,7 +361,7 @@ export class Vector {
      */
     public cross(vector: Vector): Vector {
         if (!(this.components.length === 3) || !(vector.components.length === 3)) {
-            throw Error('Cross product can only be calculated for 3D vectors!')
+            throw new DimensionsVectorError('Cross product can only be calculated for 3D vectors!')
         }
 
         return new Vector(
@@ -387,7 +390,7 @@ export class Vector {
      * @returns IPoint
      */
     public toPoint(): IPoint {
-        if (this.components.length < 2) throw new Error('Not enough components for point');
+        if (this.components.length < 2) throw new DimensionsVectorError('Not enough components for point');
         if (this.components.length < 3) return { x: this.x, y: this.y };
         if (this.components.length > 3) console.warn('This vector has too many components for a 3D point. Only the first 3 components were represented in the point output.');
         return { x: this.x, y: this.y, z: this.z };
@@ -400,7 +403,7 @@ export class Vector {
      */
     public toAngle(): number {
         if (this.components.length !== 2) {
-            throw Error('This method only works for two-dimensional vectors!');
+            throw new DimensionsVectorError('This method only works for two-dimensional vectors!');
         }
         const origin = new Vector(0, -1)
         const radian = Math.acos(this.dot(origin) / (this.length * origin.length))
@@ -422,7 +425,7 @@ export class Vector {
      */
     public isNear(vector: Vector, distance: number): boolean {
         if (this.components.length !== 2 || vector.components.length !== 2) {
-            throw Error('This method only works for two-dimensional vectors!');
+            throw new DimensionsVectorError('This method only works for two-dimensional vectors!');
         }
         return vector.distance(this) <= distance;
     }
@@ -437,7 +440,7 @@ export class Vector {
      */
     public reflectOverPoint(reflectionPoint: Vector): Vector {
         if (this.components.length !== 2 || reflectionPoint.components.length !== 2) {
-            throw Error('This method only works for two-dimensional vectors!');
+            throw new DimensionsVectorError('This method only works for two-dimensional vectors!');
         }
 
         const distance = this.distance(reflectionPoint);
@@ -595,7 +598,7 @@ export class Vector {
      */
     public isParallelTo(vector: Vector, accuracy: number = 3): boolean {
         if (this.length === 0 || vector.length === 0) {
-            throw new Error('Both vectors need to be lines. Length cannot be zero.')
+            throw new NoLengthVectorError('Both vectors need to be lines. Length cannot be zero.')
         }
         return this.matchesDirection(vector, accuracy) || this.matchesDirection(vector.opposite(), accuracy);
     }
@@ -624,7 +627,7 @@ export class Vector {
      */
     public setLength(length: number): Vector {
         if(this.length === 0){
-            throw new Error('Cannot set length on a vector that has no direction.');
+            throw new NoLengthVectorError('Cannot set length on a vector that has no direction.');
         }
 
         return this.normalize().scale(length);
@@ -652,7 +655,7 @@ export class Vector {
         }
 
         if(this.length === 0){
-            throw new Error('Cannot add length to a vector with a starting length of zero.');
+            throw new NoLengthVectorError('Cannot add length to a vector with a starting length of zero.');
         }
 
         const newLength = this.length + addition;
@@ -682,7 +685,7 @@ export class Vector {
         }
 
         if(this.length === 0){
-            throw new Error('Cannot subtract length from a vector with a starting length of zero.');
+            throw new NoLengthVectorError('Cannot subtract length from a vector with a starting length of zero.');
         }
 
         const originalLength = this.length;
