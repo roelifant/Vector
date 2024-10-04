@@ -144,7 +144,7 @@ export class Vector {
      * @returns vector
      */
     static fromVector(vector: Vector): Vector {
-        return vector.copy()
+        return new Vector(...vector.components);
     }
 
     /**
@@ -223,7 +223,7 @@ export class Vector {
         try {
             return this.normalize()
         } catch (e) {
-            return this;
+            return this.copy();
         }
     }
 
@@ -245,7 +245,7 @@ export class Vector {
     }
 
     /**
-     * Will turn a 2D vector into an angle (degrees)
+     * Will give the angle from a 2D point vector to another 2D point vector (degrees)
      * 
      * This only works with 2D vectors
      * 
@@ -253,7 +253,7 @@ export class Vector {
      * @returns angle
      */
     public angleTo(vector: Vector): number {
-        if (this.components.length > 2 || vector.components.length > 2) {
+        if (this.components.length !== 2 || vector.components.length !== 2) {
             throw Error('This method only works for two-dimensional vectors');
         }
 
@@ -269,7 +269,7 @@ export class Vector {
      * @returns distance
      */
     public distance(vector: Vector): number {
-        if (this.components.length > 2 || vector.components.length > 2) {
+        if (this.components.length !== 2 || vector.components.length !== 2) {
             throw Error('This method only works for two-dimensional vectors!');
         }
         return Math.sqrt(Math.pow((this.x - vector.x), 2) + Math.pow((this.y - vector.y), 2));
@@ -282,6 +282,10 @@ export class Vector {
      * @returns radians
      */
     public rotate(radians: number) {
+        if (this.components.length !== 2) {
+            throw Error('This method only works for two-dimensional vectors');
+        }
+
         const cos = Math.cos(radians);
         const sin = Math.sin(radians);
 
@@ -333,6 +337,10 @@ export class Vector {
      * @returns vector
      */
     public perpendicular2D(clockwise: boolean = true): Vector {
+        if (this.components.length !== 2) {
+            throw Error('This method only works for two-dimensional vectors');
+        }
+
         if (clockwise) {
             return new Vector(-this.y, this.x);
         }
@@ -380,8 +388,9 @@ export class Vector {
      */
     public toPoint(): IPoint {
         if (this.components.length < 2) throw new Error('Not enough components for point');
-        if (this.components.length > 2) return { x: this.x, y: this.y, z: this.z };
-        return { x: this.x, y: this.y };
+        if (this.components.length < 3) return { x: this.x, y: this.y };
+        if (this.components.length > 3) console.warn('This vector has too many components for a 3D point. Only the first 3 components were represented in the point output.');
+        return { x: this.x, y: this.y, z: this.z };
     }
 
     /**
@@ -390,7 +399,7 @@ export class Vector {
      * @returns degrees
      */
     public toAngle(): number {
-        if (this.components.length > 2) {
+        if (this.components.length !== 2) {
             throw Error('This method only works for two-dimensional vectors!');
         }
         const origin = new Vector(0, -1)
@@ -412,6 +421,9 @@ export class Vector {
      * @returns boolean
      */
     public isNear(vector: Vector, distance: number): boolean {
+        if (this.components.length !== 2 || vector.components.length !== 2) {
+            throw Error('This method only works for two-dimensional vectors!');
+        }
         return vector.distance(this) <= distance;
     }
 
@@ -424,6 +436,10 @@ export class Vector {
      * @returns vector
      */
     public reflectOverPoint(reflectionPoint: Vector): Vector {
+        if (this.components.length !== 2 || reflectionPoint.components.length !== 2) {
+            throw Error('This method only works for two-dimensional vectors!');
+        }
+
         const distance = this.distance(reflectionPoint);
         const dir = reflectionPoint.subtract(this).normalizeOrRemain();
         return this.add(dir.scale(distance * 2));
