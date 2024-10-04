@@ -27,7 +27,7 @@ export class NoLengthVectorError extends Error {
 }
 
 export class IncompatibilityVectorError extends Error {
-    constructor(message: string = 'Vector does not have a length') {
+    constructor(message: string = 'Vectors are not compatible for this operation') {
         super(message);
         Object.setPrototypeOf(this, NoLengthVectorError.prototype);
     }
