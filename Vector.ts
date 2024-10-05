@@ -54,7 +54,7 @@ export class Vector {
      * The second component of the vector
      */
     public get y(): number {
-        if (this.components.length < 2) throw new MissingComponentVectorError('Vector has no y component');
+        if (this.dimensions < 2) throw new MissingComponentVectorError('Vector has no y component');
         return this.components[1];
     }
 
@@ -62,7 +62,7 @@ export class Vector {
      * The second component of the vector
      */
     public set y(y: number) {
-        if (this.components.length < 2) throw new MissingComponentVectorError('Vector has no y component');
+        if (this.dimensions < 2) throw new MissingComponentVectorError('Vector has no y component');
         this.components[1] = y;
     }
 
@@ -70,7 +70,7 @@ export class Vector {
      * the third component of the vector
      */
     public get z(): number {
-        if (this.components.length < 3) throw new MissingComponentVectorError('Vector has no z component');
+        if (this.dimensions < 3) throw new MissingComponentVectorError('Vector has no z component');
         return this.components[2];
     }
 
@@ -78,7 +78,7 @@ export class Vector {
      * the third component of the vector
      */
     public set z(z: number) {
-        if (this.components.length < 3) throw new MissingComponentVectorError('Vector has no z component');
+        if (this.dimensions < 3) throw new MissingComponentVectorError('Vector has no z component');
         this.components[2] = z;
     }
 
@@ -286,7 +286,7 @@ export class Vector {
      * @returns number
      */
     public dot(vector: Vector): number {
-        if (this.components.length !== vector.components.length) {
+        if (this.dimensions !== vector.dimensions) {
             throw new IncompatibilityVectorError("Vectors must have the same amount of components!");
         }
         let res = 0;
@@ -305,7 +305,7 @@ export class Vector {
      * @returns angle
      */
     public angleTo(vector: Vector): number {
-        if (this.components.length !== 2 || vector.components.length !== 2) {
+        if (this.dimensions !== 2 || vector.dimensions !== 2) {
             throw new DimensionsVectorError('This method only works for two-dimensional vectors');
         }
 
@@ -324,7 +324,7 @@ export class Vector {
      * @returns distance
      */
     public distance(vector: Vector): number {
-        if (this.components.length !== 2 || vector.components.length !== 2) {
+        if (this.dimensions !== 2 || vector.dimensions !== 2) {
             throw new DimensionsVectorError('This method only works for two-dimensional vectors!');
         }
         return Math.sqrt(Math.pow((this.x - vector.x), 2) + Math.pow((this.y - vector.y), 2));
@@ -337,7 +337,7 @@ export class Vector {
      * @returns radians
      */
     public rotate(radians: number) {
-        if (this.components.length !== 2) {
+        if (this.dimensions !== 2) {
             throw new DimensionsVectorError('This method only works for two-dimensional vectors');
         }
 
@@ -358,7 +358,7 @@ export class Vector {
      * @returns vector
      */
     public flipComponent(component: number): Vector {
-        if (component < 1 || component > this.components.length) throw Error('Vector does not have a ' + component + 'th component');
+        if (component < 1 || component > this.dimensions) throw Error('Vector does not have a ' + component + 'th component');
 
         const vector = this.copy()
         vector.components[component - 1] = -vector.components[component - 1];
@@ -392,7 +392,7 @@ export class Vector {
      * @returns vector
      */
     public perpendicular2D(clockwise: boolean = true): Vector {
-        if (this.components.length !== 2) {
+        if (this.dimensions !== 2) {
             throw new DimensionsVectorError('This method only works for two-dimensional vectors');
         }
 
@@ -412,7 +412,7 @@ export class Vector {
      * @returns vector
      */
     public cross(vector: Vector): Vector {
-        if (!(this.components.length === 3) || !(vector.components.length === 3)) {
+        if (!(this.dimensions === 3) || !(vector.dimensions === 3)) {
             throw new DimensionsVectorError('Cross product can only be calculated for 3D vectors!')
         }
 
@@ -442,9 +442,9 @@ export class Vector {
      * @returns IPoint
      */
     public toPoint(): IPoint {
-        if (this.components.length < 2) throw new DimensionsVectorError('Not enough components for point');
-        if (this.components.length < 3) return { x: this.x, y: this.y };
-        if (this.components.length > 3) console.warn('This vector has too many components for a 3D point. Only the first 3 components were represented in the point output.');
+        if (this.dimensions < 2) throw new DimensionsVectorError('Not enough components for point');
+        if (this.dimensions < 3) return { x: this.x, y: this.y };
+        if (this.dimensions > 3) console.warn('This vector has too many components for a 3D point. Only the first 3 components were represented in the point output.');
         return { x: this.x, y: this.y, z: this.z };
     }
 
@@ -452,7 +452,7 @@ export class Vector {
      * Output a 2D vector as an angle
      */
     public toAngle(): number {
-        if (this.components.length !== 2) {
+        if (this.dimensions !== 2) {
             throw new DimensionsVectorError('This method only works for two-dimensional vectors!');
         }
         const origin = new Vector(0, -1)
@@ -478,7 +478,7 @@ export class Vector {
      * @returns boolean
      */
     public isNear(vector: Vector, distance: number): boolean {
-        if (this.components.length !== 2 || vector.components.length !== 2) {
+        if (this.dimensions !== 2 || vector.dimensions !== 2) {
             throw new DimensionsVectorError('This method only works for two-dimensional vectors!');
         }
         return vector.distance(this) <= distance;
@@ -493,7 +493,7 @@ export class Vector {
      * @returns vector
      */
     public reflectOverPoint(reflectionPoint: Vector): Vector {
-        if (this.components.length !== 2 || reflectionPoint.components.length !== 2) {
+        if (this.dimensions !== 2 || reflectionPoint.dimensions !== 2) {
             throw new DimensionsVectorError('This method only works for two-dimensional vectors!');
         }
 
@@ -556,7 +556,7 @@ export class Vector {
      */
     public flip(): Vector {
         let vector = this.copy();
-        for (let i = 1; i < this.components.length + 1; i++) {
+        for (let i = 1; i < this.dimensions + 1; i++) {
             vector = vector.flipComponent(i);
         }
         return vector.copy();
@@ -578,10 +578,10 @@ export class Vector {
      */
     public log() {
         const components: any = {};
-        if (this.components.length <= 3) {
+        if (this.dimensions <= 3) {
             components['x'] = this.x;
-            if (this.components.length > 1) components['y'] = this.y;
-            if (this.components.length > 2) components['z'] = this.z;
+            if (this.dimensions > 1) components['y'] = this.y;
+            if (this.dimensions > 2) components['z'] = this.z;
         } else {
             this.components.forEach((comp, index) => {
                 components[index] = comp;
@@ -613,11 +613,11 @@ export class Vector {
      * @returns boolean
      */
     public matches(vector: Vector, accuracy: number = 3): boolean {
-        if (this.components.length !== vector.components.length) {
+        if (this.dimensions !== vector.dimensions) {
             return false;
         }
 
-        for (let i = 0; i < this.components.length; i++) {
+        for (let i = 0; i < this.dimensions; i++) {
             const thisComp = this.components[i];
             const otherComp = vector.components[i];
 
