@@ -1,6 +1,7 @@
-import { IPoint } from "./VectorInterfaces";
+import { IPoint, IVectorConfig } from "./VectorInterfaces";
 import { VectorUtils } from "./VectorUtils";
 import { ConstructorVectorError, DimensionsVectorError, IncompatibilityVectorError, MissingComponentVectorError, NoLengthVectorError } from './VectorErrors';
+import { VectorAngleEnum } from "./VectorEnums";
 
 export class Vector {
 
@@ -13,6 +14,27 @@ export class Vector {
      * A collection of utility methods that are useful for vector calculations
      */
     static utils: VectorUtils = new VectorUtils();
+
+    /**
+     * The settings that should be applied to all vector instances
+     */
+    private static config: IVectorConfig = {
+        angles: VectorAngleEnum.degrees
+    }
+
+    /**
+     * Accepts and returns radians for angles
+     */
+    private static get usesRadians(): boolean {
+        return Vector.config.angles === VectorAngleEnum.radians;
+    }
+
+    /**
+     * Accepts and returns degrees for angles
+     */
+    private static get usesDegrees(): boolean {
+        return Vector.config.angles === VectorAngleEnum.degrees;
+    }
 
     /**
      * The first component of the vector
@@ -95,7 +117,7 @@ export class Vector {
      * 
      * @returns vector
      */
-    static from(param: number | IPoint | Vector): Vector {
+    public static from(param: number | IPoint | Vector): Vector {
         if (param instanceof Vector) {
             return Vector.fromVector(param);
         }
@@ -123,22 +145,22 @@ export class Vector {
      * @param point 
      * @returns vector
      */
-    static fromPoint(point: IPoint): Vector {
+    public static fromPoint(point: IPoint): Vector {
         if (!!point.z) return new Vector(point.x, point.y, point.z);
         return new Vector(point.x, point.y);
     }
 
     /**
      * Will create a 2D Vector from a given angle
-     * 
-     * Angle must be in degrees
      *
      * @param angle
      * @returns vector
      */
-    static fromAngle(angle: number): Vector {
-        let radians = this.utils.degreesToRadians(angle);
-        return new Vector(Math.cos(radians), Math.sin(radians));
+    public static fromAngle(angle: number): Vector {
+        if(Vector.usesDegrees) {
+            angle = this.utils.degreesToRadians(angle);
+        }
+        return new Vector(Math.cos(angle), Math.sin(angle));
     }
 
     /**
@@ -146,8 +168,35 @@ export class Vector {
      * @param vector 
      * @returns vector
      */
-    static fromVector(vector: Vector): Vector {
+    public static fromVector(vector: Vector): Vector {
         return new Vector(...vector.components);
+    }
+
+    public static setConfig(config: Partial<IVectorConfig>) {
+        Vector.config = {
+            ...Vector.config,
+            ...config
+        }
+    }
+
+    public static useRadians() {
+        if(Vector.usesRadians) {
+            console.warn('Vector class was already using radians');
+        }
+
+        Vector.setConfig({
+            angles: VectorAngleEnum.radians
+        });
+    }
+
+    public static useDegrees() {
+        if(Vector.usesDegrees) {
+            console.warn('Vector class was already using degrees');
+        }
+
+        Vector.setConfig({
+            angles: VectorAngleEnum.degrees
+        });
     }
 
     /**
@@ -248,7 +297,7 @@ export class Vector {
     }
 
     /**
-     * Will give the angle from a 2D point vector to another 2D point vector (degrees)
+     * Will give the angle from a 2D point vector to another 2D point vector
      * 
      * This only works with 2D vectors
      * 
@@ -262,6 +311,9 @@ export class Vector {
 
         const diff = this.subtract(vector);
         const theta = Math.atan2(diff.x, diff.y);
+        if(Vector.usesRadians) {
+            return theta;
+        }
         return theta * (180 / Math.PI);
     }
 
@@ -397,20 +449,22 @@ export class Vector {
     }
 
     /**
-     * Output a 2D vector as an angle (degrees)
-     * 
-     * @returns degrees
+     * Output a 2D vector as an angle
      */
     public toAngle(): number {
         if (this.components.length !== 2) {
             throw new DimensionsVectorError('This method only works for two-dimensional vectors!');
         }
         const origin = new Vector(0, -1)
-        const radian = Math.acos(this.dot(origin) / (this.length * origin.length))
-        if (this.y * origin.x > this.x * origin.y) {
-            return radian * (180 / Math.PI);
+        let radians = Math.acos(this.dot(origin) / (this.length * origin.length))
+        
+        if (this.y * origin.x <= this.x * origin.y) {
+            radians = (Math.PI * 2) - radians; 
         }
-        return ((Math.PI * 2) - radian) * (180 / Math.PI);
+        if(Vector.usesDegrees) {
+            return Vector.utils.radiansToDegrees(radians);
+        }
+        return radians;
     }
 
     /**
