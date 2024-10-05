@@ -19,7 +19,7 @@ export class Vector {
      * The settings that should be applied to all vector instances
      */
     private static config: IVectorConfig = {
-        angles: VectorAngleEnum.degrees
+        angles: VectorAngleEnum.radians
     }
 
     /**
@@ -160,7 +160,7 @@ export class Vector {
         if(Vector.usesDegrees) {
             angle = this.utils.degreesToRadians(angle);
         }
-        return new Vector(Math.cos(angle), Math.sin(angle));
+        return new Vector(Math.sin(angle), Math.cos(angle));
     }
 
     /**
