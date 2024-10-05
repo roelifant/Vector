@@ -336,13 +336,17 @@ export class Vector {
      * @param radians 
      * @returns radians
      */
-    public rotate(radians: number) {
+    public rotate(angle: number) {
         if (this.dimensions !== 2) {
             throw new DimensionsVectorError('This method only works for two-dimensional vectors');
         }
 
-        const cos = Math.cos(radians);
-        const sin = Math.sin(radians);
+        if(Vector.usesDegrees) {
+            angle = Vector.utils.degreesToRadians(angle);
+        }
+
+        const cos = Math.cos(angle);
+        const sin = Math.sin(angle);
 
         return new Vector(
             (cos * this.x) - (sin * this.y),
@@ -369,11 +373,11 @@ export class Vector {
     /**
      * Rotate the vector around an anchor point
      * 
-     * @param radians 
+     * @param angle 
      * @param anchor 
      * @returns vector
      */
-    public rotateAroundAnchor(radians: number, anchor: Vector | IPoint): Vector {
+    public rotateAroundAnchor(angle: number, anchor: Vector | IPoint): Vector {
         if (!(anchor instanceof Vector)) {
             anchor = Vector.from(anchor);
         }
@@ -381,8 +385,8 @@ export class Vector {
         // first get direction from point to anchor
         const direction = this.subtract(<Vector>anchor);
 
-        // then rotate that direction the desired angle (radian)
-        const rotatedDirection = direction.rotate(radians);
+        // then rotate that direction the desired angle
+        const rotatedDirection = direction.rotate(angle);
         return rotatedDirection.add(<Vector>anchor);
     }
 
