@@ -782,9 +782,7 @@ export class Vector {
             return this.copy();
         }
 
-        const diffVector = vector.subtract(this);
-        const directionVector = diffVector.normalize();
-        const movementVector = directionVector.scale(distance);
+        const movementVector = vector.subtract(this).normalize().scale(distance);
 
         return this.add(movementVector);
     }
@@ -805,9 +803,7 @@ export class Vector {
             return this.copy();
         }
 
-        const diffVector = this.subtract(vector);
-        const directionVector = diffVector.normalize();
-        const movementVector = directionVector.scale(distance);
+        const movementVector = this.subtract(vector).normalize().scale(distance);
 
         return this.add(movementVector);
     }
