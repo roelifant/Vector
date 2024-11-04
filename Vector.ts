@@ -735,7 +735,7 @@ export class Vector {
      * Modify the vector so its length is equal to the original length - the given subtraction number
      * 
      * @param subtraction 
-     * @returns 
+     * @returns vector
      */
     public subtractLength(subtraction: number): Vector {
         if(subtraction < 0) {
@@ -764,5 +764,51 @@ export class Vector {
      */
     public subtractMagnitude(subtraction: number): Vector {
         return this.subtractLength(subtraction);
+    }
+
+    /**
+     * Move a position vector a given distance towards another position vector.
+     * 
+     * Nothing will happen if the vectors are identical.
+     * 
+     * @param vector 
+     * @param distance 
+     * @returns vector
+     */
+    public moveTowards(vector: Vector, distance: number): Vector {
+
+        if(this.matches(vector)) {
+            console.warn('Vectors are identical, so nothing was changed.');
+            return this.copy();
+        }
+
+        const diffVector = vector.subtract(this);
+        const directionVector = diffVector.normalize();
+        const movementVector = directionVector.scale(distance);
+
+        return this.add(movementVector);
+    }
+
+    /**
+     * Move a position vector a given distance away from another position vector.
+     * 
+     * Nothing will happen if the vectors are identical.
+     * 
+     * @param vector 
+     * @param distance 
+     * @returns vector
+     */
+    public moveAwayFrom(vector: Vector, distance: number): Vector {
+        
+        if(this.matches(vector)) {
+            console.warn('Vectors are identical, so nothing was changed. The vector does not know in what direction to move.');
+            return this.copy();
+        }
+
+        const diffVector = this.subtract(vector);
+        const directionVector = diffVector.normalize();
+        const movementVector = directionVector.scale(distance);
+
+        return this.add(movementVector);
     }
 }
