@@ -172,6 +172,15 @@ export class Vector {
         return new Vector(...vector.components);
     }
 
+    /**
+     * Make a random vector with length 1
+     * 
+     * @returns vector
+     */
+    public static random(): Vector {
+        return new Vector(Math.random()-.5, Math.random()-.5).normalize();
+    }
+
     public static setConfig(config: Partial<IVectorConfig>) {
         Vector.config = {
             ...Vector.config,
