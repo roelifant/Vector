@@ -175,10 +175,18 @@ export class Vector {
     /**
      * Make a random vector with length 1
      * 
+     * @param components - Number of components the vector should have. Needs to be at least 1.
      * @returns vector
      */
-    public static random(): Vector {
-        return new Vector(Math.random()-.5, Math.random()-.5).normalize();
+    public static random(components: number = 2): Vector {
+        if(components < 1) {
+            throw new ConstructorVectorError('At least 1 component is needed to create a random vector');
+        }
+        const comps = [];
+        for (let i = 0; i < components; i++) {
+            comps.push(Math.random()-.5);
+        }
+        return new Vector(...comps).normalize();
     }
 
     public static setConfig(config: Partial<IVectorConfig>) {
